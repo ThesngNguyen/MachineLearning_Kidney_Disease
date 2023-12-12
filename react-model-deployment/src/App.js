@@ -96,306 +96,320 @@ const App = () => {
   }, [positivePercentage, negativePercentage]);
 
   return (
-    <div>
-      <h2>Kidney Disease Diagnosis</h2>
-      <label>
-        <div>
-          Age: {inputData.age}
+    <div>     
+      <div className='Box-Container'>
+        <div className='Info-Container'>
+        <h2>Kidney Disease Diagnosis</h2>
+        <button onClick={handleSubmit}>Predict</button>
+          <div className='LR-Model'>
+            <h1>Logistic Regression</h1>
+            <p>Kết quả dự đoán: {predictionResult !== null && (           
+                <span>{predictionResult === 0 ? 'Khả năng thấp bị bệnh thận' : 'Khả năng cao bị bệnh thận'}</span>
+            )}</p>         
+            <p>Tỉ lệ không mắc bệnh: {negativePercentage}%</p>
+            <p>Tỉ lệ mắc bệnh: {positivePercentage}%</p>
+          </div>
+          <div className='LR-Model'>
+            <h1>Logistic Regression</h1>
+            <p>Kết quả dự đoán: {predictionResult !== null && (           
+                <span>{predictionResult === 0 ? 'Khả năng thấp bị bệnh thận' : 'Khả năng cao bị bệnh thận'}</span>
+            )}</p>         
+            <p>Tỉ lệ không mắc bệnh: {negativePercentage}%</p>
+            <p>Tỉ lệ mắc bệnh: {positivePercentage}%</p>
+          </div>
         </div>
-        <Range
-          step={1}
-          min={1}
-          max={100}
-          values={[inputData.age]}
-          onChange={(values) => handleInputChange('age', values[0])}
-          renderTrack={({ props, children }) => (
-            <div {...props} className="track">{children}</div>
-          )}
-          renderThumb={({ props }) => (
-            <div {...props} className="thumb" />
-          )}
-        />
-        <div className="range-info">
-          <span>Min: 1</span>
-          <span>Max: 100</span>
+        <div className='Data-Container'>
+          <label>
+            <div>
+              Age: {inputData.age}
+            </div>
+            <Range
+              step={1}
+              min={1}
+              max={100}
+              values={[inputData.age]}
+              onChange={(values) => handleInputChange('age', values[0])}
+              renderTrack={({ props, children }) => (
+                <div {...props} className="track">{children}</div>
+              )}
+              renderThumb={({ props }) => (
+                <div {...props} className="thumb" />
+              )}
+            />
+            <div className="range-info">
+              <span>Min: 1</span>
+              <span>Max: 100</span>
+            </div>
+          </label>
+
+          <label>
+            Huyết Áp:
+            <select value={inputData.bp} onChange={(e) => handleInputChange('bp', e.target.value)}>
+              <option value="normal">Normal</option>
+              <option value="above normal">Above Normal</option>
+              <option value="well above normal">Well Above Normal</option>
+            </select>
+          </label>
+
+          <label>
+            Trọng lượng riêng:
+            <select value={inputData.sg} onChange={(e) => handleInputChange('sg', e.target.value)}>
+              <option value="normal">Normal</option>
+              <option value="abnormal">Abnormal</option>
+            </select>
+          </label>
+
+          <label>
+            Chọn albumin của bạn:
+            <select value={inputData.al} onChange={(e) => handleInputChange('al', e.target.value)}>
+              <option value="normal">Normal</option>
+              <option value="abnormal">Abnormal</option>
+            </select>
+          </label>
+
+          <label>
+            Chọn đường huyết của bạn:
+            <select value={inputData.su} onChange={(e) => handleInputChange('su', e.target.value)}>
+              <option value="normal">Normal</option>
+              <option value="abnormal">Abnormal</option>
+            </select>
+          </label>
+
+          <label>
+            Chọn số lượng tế bào máu đỏ của bạn:
+            <select value={inputData.rbc} onChange={(e) => handleInputChange('rbc', e.target.value)}>
+              <option value="normal">Normal</option>
+              <option value="abnormal">Abnormal</option>
+            </select>
+          </label>
+
+          <label>
+            Chọn số lượng tế bào ủ bằng của bạn:
+            <select value={inputData.pc} onChange={(e) => handleInputChange('pc', e.target.value)}>
+              <option value="normal">Normal</option>
+              <option value="abnormal">Abnormal</option>
+            </select>
+          </label>
+
+          <label>
+            Chọn các cục máu trắng trong nước tiểu của bạn:
+            <select value={inputData.pcc} onChange={(e) => handleInputChange('pcc', e.target.value)}>
+              <option value="present">Present</option>
+              <option value="notpresent">Not Present</option>
+            </select>
+          </label>
+
+          <label>
+            Chọn vi khuẩn trong nước tiểu của bạn:
+            <select value={inputData.ba} onChange={(e) => handleInputChange('ba', e.target.value)}>
+              <option value="present">Present</option>
+              <option value="notpresent">Not Present</option>
+            </select>
+          </label>
+
+          <label>
+            Chọn đường huyết ngẫu nhiên của bạn: {inputData.bgr}
+            <Range
+              step={1}
+              min={1}
+              max={500}
+              values={[inputData.bgr]}
+              onChange={(values) => handleInputChange('bgr', values[0])}
+              renderTrack={({ props, children }) => (
+                <div {...props} className="track">{children}</div>
+              )}
+              renderThumb={({ props }) => (
+                <div {...props} className="thumb" />
+              )}
+            />
+          </label>
+
+          <label>
+            Chọn ure trong máu của bạn: {inputData.bu}
+            <Range
+              step={1}
+              min={1}
+              max={200}
+              values={[inputData.bu]}
+              onChange={(values) => handleInputChange('bu', values[0])}
+              renderTrack={({ props, children }) => (
+                <div {...props} className="track">{children}</div>
+              )}
+              renderThumb={({ props }) => (
+                <div {...props} className="thumb" />
+              )}
+            />
+          </label>
+
+          <label>
+            Chọn creatinin trong huyết tương của bạn: {inputData.sc}
+            <Range
+              step={0.1}
+              min={1.0}
+              max={15.0}
+              values={[inputData.sc]}
+              onChange={(values) => handleInputChange('sc', values[0])}
+              renderTrack={({ props, children }) => (
+                <div {...props} className="track">{children}</div>
+              )}
+              renderThumb={({ props }) => (
+                <div {...props} className="thumb" />
+              )}
+            />
+          </label>
+
+          <label>
+            Chọn nồng độ natri của bạn (sod): {inputData.sod}
+            <Range
+              step={1}
+              min={1}
+              max={200}
+              values={[inputData.sod]}
+              onChange={(values) => handleInputChange('sod', values[0])}
+              renderTrack={({ props, children }) => (
+                <div {...props} className="track">{children}</div>
+              )}
+              renderThumb={({ props }) => (
+                <div {...props} className="thumb" />
+              )}
+            />
+          </label>
+
+          <label>
+            Chọn nồng độ kali của bạn (pot): {inputData.pot}
+            <Range
+              step={0.1}
+              min={1.0}
+              max={10.0}
+              values={[inputData.pot]}
+              onChange={(values) => handleInputChange('pot', values[0])}
+              renderTrack={({ props, children }) => (
+                <div {...props} className="track">{children}</div>
+              )}
+              renderThumb={({ props }) => (
+                <div {...props} className="thumb" />
+              )}
+            />
+          </label>
+
+          <label>
+            Chọn hàm lượng hemoglobin của bạn (hemo): {inputData.hemo}
+            <Range
+              step={0.1}
+              min={1.0}
+              max={20.0}
+              values={[inputData.hemo]}
+              onChange={(values) => handleInputChange('hemo', values[0])}
+              renderTrack={({ props, children }) => (
+                <div {...props} className="track">{children}</div>
+              )}
+              renderThumb={({ props }) => (
+                <div {...props} className="thumb" />
+              )}
+            />
+          </label>
+
+          <label>
+            Chọn tỷ lệ tế bào đỏ của bạn (pcv): {inputData.pcv}
+            <Range
+              step={1}
+              min={1}
+              max={54}
+              values={[inputData.pcv]}
+              onChange={(values) => handleInputChange('pcv', values[0])}
+              renderTrack={({ props, children }) => (
+                <div {...props} className="track">{children}</div>
+              )}
+              renderThumb={({ props }) => (
+                <div {...props} className="thumb" />
+              )}
+            />
+          </label>
+
+          <label>
+            Chọn đếm tế bào trắng của bạn (wc): {inputData.wc}
+            <Range
+              step={1}
+              min={1}
+              max={26400}
+              values={[inputData.wc]}
+              onChange={(values) => handleInputChange('wc', values[0])}
+              renderTrack={({ props, children }) => (
+                <div {...props} className="track">{children}</div>
+              )}
+              renderThumb={({ props }) => (
+                <div {...props} className="thumb" />
+              )}
+            />
+          </label>
+
+          <label>
+            Chọn số lượng tế bào đỏ của bạn (rc): {inputData.rc}
+            <Range
+              step={0.1}
+              min={1.0}
+              max={18.0}
+              values={[inputData.rc]}
+              onChange={(values) => handleInputChange('rc', values[0])}
+              renderTrack={({ props, children }) => (
+                <div {...props} className="track">{children}</div>
+              )}
+              renderThumb={({ props }) => (
+                <div {...props} className="thumb" />
+              )}
+            />
+          </label>
+
+          <label>
+            Chọn tình trạng tăng huyết áp của bạn (htn):
+            <select value={inputData.htn} 
+            onChange={(e) => handleInputChange('htn', e.target.value)}>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+
+          <label>
+            Chọn tình trạng tiểu đường của bạn (dm):
+            <select value={inputData.dm} onChange={(e) => handleInputChange('dm', e.target.value)}>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+
+          <label>
+            Chọn bệnh động mạch vành của bạn (cad):
+            <select value={inputData.cad} onChange={(e) => handleInputChange('cad', e.target.value)}>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+
+          <label>
+            Chọn tình trạng ăn uống của bạn (appet):
+            <select value={inputData.appet} onChange={(e) => handleInputChange('appet', e.target.value)}>
+              <option value="good">Good</option>
+              <option value="poor">Poor</option>
+            </select>
+          </label>
+
+          <label>
+            Chọn tình trạng ứ nước của bạn (pe):
+            <select value={inputData.pe} onChange={(e) => handleInputChange('pe', e.target.value)}>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+
+          <label>
+            Chọn tình trạng thiếu máu của bạn (ane):
+            <select value={inputData.ane} onChange={(e) => handleInputChange('ane', e.target.value)}>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
         </div>
-      </label>
-
-      <label>
-        Blood Pressure:
-        <select value={inputData.bp} onChange={(e) => handleInputChange('bp', e.target.value)}>
-          <option value="normal">Normal</option>
-          <option value="above normal">Above Normal</option>
-          <option value="well above normal">Well Above Normal</option>
-        </select>
-      </label>
-
-      <label>
-        Specific Gravity:
-        <select value={inputData.sg} onChange={(e) => handleInputChange('sg', e.target.value)}>
-          <option value="normal">Normal</option>
-          <option value="abnormal">Abnormal</option>
-        </select>
-      </label>
-
-      <label>
-        Albumin:
-        <select value={inputData.al} onChange={(e) => handleInputChange('al', e.target.value)}>
-          <option value="normal">Normal</option>
-          <option value="abnormal">Abnormal</option>
-        </select>
-      </label>
-
-      <label>
-        Sugar:
-        <select value={inputData.su} onChange={(e) => handleInputChange('su', e.target.value)}>
-          <option value="normal">Normal</option>
-          <option value="abnormal">Abnormal</option>
-        </select>
-      </label>
-
-      <label>
-        Red Blood Cells:
-        <select value={inputData.rbc} onChange={(e) => handleInputChange('rbc', e.target.value)}>
-          <option value="normal">Normal</option>
-          <option value="abnormal">Abnormal</option>
-        </select>
-      </label>
-
-      <label>
-        Pus Cell:
-        <select value={inputData.pc} onChange={(e) => handleInputChange('pc', e.target.value)}>
-          <option value="normal">Normal</option>
-          <option value="abnormal">Abnormal</option>
-        </select>
-      </label>
-
-      <label>
-        Pus Cell Clumps:
-        <select value={inputData.pcc} onChange={(e) => handleInputChange('pcc', e.target.value)}>
-          <option value="present">Present</option>
-          <option value="notpresent">Not Present</option>
-        </select>
-      </label>
-
-      <label>
-        Bacteria:
-        <select value={inputData.ba} onChange={(e) => handleInputChange('ba', e.target.value)}>
-          <option value="present">Present</option>
-          <option value="notpresent">Not Present</option>
-        </select>
-      </label>
-
-      <label>
-        Blood Glucose Random: {inputData.bgr}
-        <Range
-          step={1}
-          min={1}
-          max={500}
-          values={[inputData.bgr]}
-          onChange={(values) => handleInputChange('bgr', values[0])}
-          renderTrack={({ props, children }) => (
-            <div {...props} className="track">{children}</div>
-          )}
-          renderThumb={({ props }) => (
-            <div {...props} className="thumb" />
-          )}
-        />
-      </label>
-
-      <label>
-        Blood Urea: {inputData.bu}
-        <Range
-          step={1}
-          min={1}
-          max={200}
-          values={[inputData.bu]}
-          onChange={(values) => handleInputChange('bu', values[0])}
-          renderTrack={({ props, children }) => (
-            <div {...props} className="track">{children}</div>
-          )}
-          renderThumb={({ props }) => (
-            <div {...props} className="thumb" />
-          )}
-        />
-      </label>
-
-      <label>
-        Serum Creatinine: {inputData.sc}
-        <Range
-          step={0.1}
-          min={1.0}
-          max={15.0}
-          values={[inputData.sc]}
-          onChange={(values) => handleInputChange('sc', values[0])}
-          renderTrack={({ props, children }) => (
-            <div {...props} className="track">{children}</div>
-          )}
-          renderThumb={({ props }) => (
-            <div {...props} className="thumb" />
-          )}
-        />
-      </label>
-
-      <label>
-        Sodium (sod): {inputData.sod}
-        <Range
-          step={1}
-          min={1}
-          max={200}
-          values={[inputData.sod]}
-          onChange={(values) => handleInputChange('sod', values[0])}
-          renderTrack={({ props, children }) => (
-            <div {...props} className="track">{children}</div>
-          )}
-          renderThumb={({ props }) => (
-            <div {...props} className="thumb" />
-          )}
-        />
-      </label>
-
-      <label>
-        Potassium (pot): {inputData.pot}
-        <Range
-          step={0.1}
-          min={1.0}
-          max={10.0}
-          values={[inputData.pot]}
-          onChange={(values) => handleInputChange('pot', values[0])}
-          renderTrack={({ props, children }) => (
-            <div {...props} className="track">{children}</div>
-          )}
-          renderThumb={({ props }) => (
-            <div {...props} className="thumb" />
-          )}
-        />
-      </label>
-
-      <label>
-        Hemoglobin (hemo): {inputData.hemo}
-        <Range
-          step={0.1}
-          min={1.0}
-          max={20.0}
-          values={[inputData.hemo]}
-          onChange={(values) => handleInputChange('hemo', values[0])}
-          renderTrack={({ props, children }) => (
-            <div {...props} className="track">{children}</div>
-          )}
-          renderThumb={({ props }) => (
-            <div {...props} className="thumb" />
-          )}
-        />
-      </label>
-
-      <label>
-        Packed Cell Volume (pcv): {inputData.pcv}
-        <Range
-          step={1}
-          min={1}
-          max={54}
-          values={[inputData.pcv]}
-          onChange={(values) => handleInputChange('pcv', values[0])}
-          renderTrack={({ props, children }) => (
-            <div {...props} className="track">{children}</div>
-          )}
-          renderThumb={({ props }) => (
-            <div {...props} className="thumb" />
-          )}
-        />
-      </label>
-
-      <label>
-        White Blood Cell Count (wc): {inputData.wc}
-        <Range
-          step={1}
-          min={1}
-          max={26400}
-          values={[inputData.wc]}
-          onChange={(values) => handleInputChange('wc', values[0])}
-          renderTrack={({ props, children }) => (
-            <div {...props} className="track">{children}</div>
-          )}
-          renderThumb={({ props }) => (
-            <div {...props} className="thumb" />
-          )}
-        />
-      </label>
-
-      <label>
-        Red Blood Cell Count (rc): {inputData.rc}
-        <Range
-          step={0.1}
-          min={1.0}
-          max={18.0}
-          values={[inputData.rc]}
-          onChange={(values) => handleInputChange('rc', values[0])}
-          renderTrack={({ props, children }) => (
-            <div {...props} className="track">{children}</div>
-          )}
-          renderThumb={({ props }) => (
-            <div {...props} className="thumb" />
-          )}
-        />
-      </label>
-
-      <label>
-        Hypertension (htn):
-        <select value={inputData.htn} 
-        onChange={(e) => handleInputChange('htn', e.target.value)}>
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
-      </label>
-
-      <label>
-        Diabetes Mellitus (dm):
-        <select value={inputData.dm} onChange={(e) => handleInputChange('dm', e.target.value)}>
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
-      </label>
-
-      <label>
-        Coronary Artery Disease (cad):
-        <select value={inputData.cad} onChange={(e) => handleInputChange('cad', e.target.value)}>
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
-      </label>
-
-      <label>
-        Appetite (appet):
-        <select value={inputData.appet} onChange={(e) => handleInputChange('appet', e.target.value)}>
-          <option value="good">Good</option>
-          <option value="poor">Poor</option>
-        </select>
-      </label>
-
-      <label>
-        Pedal Edema (pe):
-        <select value={inputData.pe} onChange={(e) => handleInputChange('pe', e.target.value)}>
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
-      </label>
-
-      <label>
-        Anemia (ane):
-        <select value={inputData.ane} onChange={(e) => handleInputChange('ane', e.target.value)}>
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
-      </label>
-
-      <button onClick={handleSubmit}>Predict</button>
-      {predictionResult !== null && (
-        <div>
-          <p>Prediction Result: {predictionResult === 0 ? 'No kidney disease' : 'Kidney disease detected'}</p>
-        </div>
-      )}
-      <p>Tỉ lệ không mắc bệnh: {negativePercentage }%</p>
-      <p>Tỉ lệ mắc bệnh: {positivePercentage}%</p>
+      </div>
     </div>
   );
 };

@@ -1,6 +1,5 @@
 body {
     font-family: Arial, sans-serif;
-    padding: 30px;
 }
 
 .container {
@@ -14,6 +13,9 @@ body {
 
 h2 {
     color: #333;
+    text-align: center;
+    position: sticky;
+    top: 0;
 }
 
 label {
@@ -71,4 +73,48 @@ p {
     display: flex;
     justify-content: space-between;
     margin-top: 10px;
+}
+
+
+/* Data */
+
+.Box-Container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    position: fixed;
+}
+
+.Info-Container {
+    width: 40%;
+    height: 100%;
+    position: sticky;
+    padding-left: 20px;
+    top: 0;
+}
+
+.Data-Container {
+    width: 60%;
+    height: 40rem;
+    padding: 30px 30px 30px;
+    overflow: auto;
+}
+
+
+/* ML Model Box */
+
+h1 {
+    font-size: 20px;
+    font-weight: normal;
+    text-align: center;
+}
+
+.LR-Model {
+    padding: 10px;
+    width: auto;
+    height: auto;
+    margin-top: 10px;
+    border-radius: 20px;
+    background-color: #ccc;
 }
