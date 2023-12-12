@@ -6,7 +6,8 @@ from flask_cors import CORS
 
 app = Flask(__name__)   
 CORS(app)
-model = pickle.load(open('Data/LR_Model.h5', 'rb'))
+modelLR = pickle.load(open('Data/LR_Model.h5', 'rb'))
+modelBNB = pickle.load(open('Data/BernoulliNB.h5', 'rb'))
 
 def preprocess_data(age, bp, sg, al, su, rbc, pc, pcc, ba, bgr, bu, sc, sod, pot, hemo, pcv, wc, rc, htn, dm, cad, appet, pe, ane):
     input_data = {
@@ -48,8 +49,8 @@ def preprocess_data(age, bp, sg, al, su, rbc, pc, pcc, ba, bgr, bu, sc, sod, pot
     
     return new_data.astype(np.float64)
 
-# Biến để lưu trữ thông tin dự đoán
-prediction_info = {}
+# Biến để lưu trữ thông tin dự đoán LR
+prediction_info_LR = {}
 
 @app.route('/predict', methods=['POST'])
 def make_prediction():
@@ -61,22 +62,22 @@ def make_prediction():
         input_data = preprocess_data(**data)
         
         # Make prediction using the model
-        result = model.predict(input_data)
+        result = modelLR.predict(input_data)
         
         # Get the prediction probabilities
-        probabilities = model.predict_proba(input_data)
+        probabilities = modelLR.predict_proba(input_data)
         
         # Calculate the percentage of positive and negative predictions
-        negative_percentage = round(probabilities[0][0] * 100, 2)
-        positive_percentage = round(probabilities[0][1] * 100, 2)
+        negative_percentage_LR = round(probabilities[0][0] * 100, 20)
+        positive_percentage_LR = round(probabilities[0][1] * 100, 20)
         
         # Store prediction info
-        prediction_info['negative_percentage'] = negative_percentage
-        prediction_info['positive_percentage'] = positive_percentage
+        prediction_info_LR['negative_percentage_LR'] = negative_percentage_LR
+        prediction_info_LR['positive_percentage_LR'] = positive_percentage_LR
 
         # Display the percentages (you can log or print this as needed)
-        print("Tỉ lệ không mắc bệnh:", negative_percentage, "%")
-        print("Tỉ lệ mắc bệnh:", positive_percentage, "%")
+        print("Tỉ lệ không mắc bệnh:", negative_percentage_LR, "%")
+        print("Tỉ lệ mắc bệnh:", positive_percentage_LR, "%")
         
         # Display the prediction result
         if result == 0:
@@ -87,8 +88,8 @@ def make_prediction():
         # Return the prediction result
         return jsonify({
             'result': result.item(),
-            'negative_percentage': negative_percentage,
-            'positive_percentage': positive_percentage
+            'negative_percentage_LR': negative_percentage_LR,
+            'positive_percentage_LR': positive_percentage_LR
         })
     except Exception as e:
         return jsonify({'error': str(e)})
@@ -99,7 +100,61 @@ def make_prediction():
 def get_prediction_info():
     try:
         # Trả về thông tin dự đoán từ biến prediction_info
-        return jsonify(prediction_info)
+        return jsonify(prediction_info_LR)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
+    
+### Bernoulli Naives Bayes
+
+
+# Biến để lưu trữ thông tin dự đoán BNB
+prediction_info_BNB = {}
+
+# Route cho phương thức GET của BNB
+@app.route('/prediction/bnb', methods=['GET'])
+def get_bnb_prediction_info():
+    try:
+        # Trả về thông tin dự đoán từ biến prediction_info
+        return jsonify(prediction_info_BNB)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+# Route cho phương thức POST của BNB
+@app.route('/prediction/bnb', methods=['POST'])
+def make_bnb_prediction():
+    try:
+        # Nhận dữ liệu JSON từ yêu cầu
+        data = request.get_json(force=True)
+        
+        # Preprocess the input data
+        input_data = preprocess_data(**data)
+
+        # Tiến hành xử lý và dự đoán BNB ở đây (giả sử)
+        resultBNB = modelBNB.predict(input_data)  # Giả sử kết quả là 0
+        
+        # Get the prediction probabilities
+        probabilities = modelBNB.predict_proba(input_data)
+        
+        # Calculate the percentage of positive and negative predictions
+        negative_percentage_BNB = round(probabilities[0][0] * 100, 20)
+        positive_percentage_BNB = round(probabilities[0][1] * 100, 20)
+        
+        # Store prediction info
+        prediction_info_BNB['negative_percentage_BNB'] = negative_percentage_BNB
+        prediction_info_BNB['positive_percentage_BNB'] = positive_percentage_BNB
+
+        # Display the percentages (you can log or print this as needed)
+        print("Tỉ lệ không mắc bệnh:", negative_percentage_BNB, "%")
+        print("Tỉ lệ mắc bệnh:", positive_percentage_BNB, "%")
+
+        # Trả về kết quả dưới dạng JSON
+        return jsonify({
+            'result': resultBNB.item(),
+            'negative_percentage_BNB': negative_percentage_BNB,
+            'positive_percentage_BNB': positive_percentage_BNB
+            
+        })
     except Exception as e:
         return jsonify({'error': str(e)})
 

@@ -1,6 +1,6 @@
 import './App.css';
 import React, { useState,  useEffect } from 'react';
-import { Range } from 'react-range';
+import { Range, getTrackBackground } from 'react-range';
 
 const App = () => {
   const [inputData, setInputData] = useState({
@@ -29,14 +29,22 @@ const App = () => {
     pe: 'no',
     ane: 'no',
   });
-  const [predictionResult, setPredictionResult] = useState(null);
-  const [positivePercentage, setPositivePercentage] = useState(0);
-  const [negativePercentage, setNegativePercentage] = useState(0);
+
+  //Logistic Regression
+  const [predictionResultLR, setPredictionResultLR] = useState(null);
+  const [positivePercentageLR, setPositivePercentageLR] = useState(0);
+  const [negativePercentageLR, setNegativePercentageLR] = useState(0);
+
+  //Bernoulli Regression
+  const [predictionResultBNB, setPredictionResultBNB] = useState(null);
+  const [positivePercentageBNB, setPositivePercentageBNB] = useState(0);
+  const [negativePercentageBNB, setNegativePercentageBNB] = useState(0);
 
   const handleInputChange = (fieldName, value) => {
     setInputData({ ...inputData, [fieldName]: value });
   };
 
+  //Get LR
   const getPredictionInfo = async () => {
     try {
       // Gửi yêu cầu GET để lấy thông tin chi tiết về dự đoán
@@ -44,10 +52,10 @@ const App = () => {
       const data = await response.json();
   
       // Kiểm tra xem có giá trị percentage hay không
-      if ('negative_percentage' in data && 'positive_percentage' in data) {
+      if ('negative_percentage_LR' in data && 'positive_percentage_LR' in data) {
         // Cập nhật state
-        setNegativePercentage(data.negative_percentage);
-        setPositivePercentage(data.positive_percentage);
+        setNegativePercentageLR(data.negative_percentage_LR);
+        setPositivePercentageLR(data.positive_percentage_LR);
       } else {
         console.error('Không có giá trị percentage trong phản hồi.');
       }
@@ -56,7 +64,26 @@ const App = () => {
     }
   };
 
-  //Hàm Post
+  //Get BNB
+  const getPredictionInfoBNB = async () => {
+    try {
+      // Gửi yêu cầu GET để lấy thông tin chi tiết về dự đoán
+      const responseBNB = await fetch('http://localhost:5000/prediction/bnb');
+      const dataBNB = await responseBNB.json();
+  
+      // Kiểm tra xem có giá trị percentage hay không
+      if ('negative_percentage_BNB' in dataBNB && 'positive_percentage_BNB' in dataBNB) {
+        // Cập nhật state
+        setNegativePercentageBNB(dataBNB.negative_percentage_BNB);
+        setPositivePercentageBNB(dataBNB.positive_percentage_BNB);
+      } else {
+        console.error('Không có giá trị percentage trong phản hồi.');
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy thông tin dự đoán:', error);
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       // Gửi yêu cầu POST đến /predict
@@ -67,13 +94,38 @@ const App = () => {
         },
         body: JSON.stringify(inputData),
       });
+
+      // Gửi yêu cầu POST đến /predict
+      const responseBNB = await fetch('http://localhost:5000/prediction/bnb', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(inputData),
+      });
   
       // Xử lý phản hồi từ máy chủ
       const data = await response.json();
+      const dataBNB = await responseBNB.json();
+
+      // Hiển thị kết quả dự đoán BNB
+      if ('result' in dataBNB) {
+        setPredictionResultBNB(dataBNB.result); 
+
+        if (dataBNB.result === 0) {
+          console.log('Khách hàng không bị bệnh thận.');
+        } else {
+          console.log('Khách hàng bị bệnh thận.');
+        }
+      } else if ('error' in dataBNB) {
+        console.error('Lỗi khi dự đoán:', dataBNB.error);
+        console.log(inputData)
+      }
   
       // Hiển thị kết quả dự đoán
       if ('result' in data) {
-        setPredictionResult(data.result);    
+        setPredictionResultLR(data.result);  
+
         if (data.result === 0) {
           console.log('Khách hàng không bị bệnh thận.');
         } else {
@@ -83,7 +135,10 @@ const App = () => {
         console.error('Lỗi khi dự đoán:', data.error);
         console.log(inputData)
       }
+
       await getPredictionInfo();
+      await getPredictionInfoBNB();
+
     } catch (error) {
       console.error('Lỗi khi gửi yêu cầu:', error);
       console.log(inputData)
@@ -91,9 +146,14 @@ const App = () => {
   };
 
   useEffect(() => {
-    console.log("Positive Percentage: ", positivePercentage);
-    console.log("Negative Percentage: ", negativePercentage);
-  }, [positivePercentage, negativePercentage]);
+    console.log("Positive Percentage: ", positivePercentageBNB);
+    console.log("Negative Percentage: ", negativePercentageBNB);
+  }, [positivePercentageBNB, negativePercentageBNB]);
+
+  useEffect(() => {
+    console.log("Positive Percentage: ", positivePercentageLR);
+    console.log("Negative Percentage: ", negativePercentageLR);
+  }, [positivePercentageLR, negativePercentageLR]);
 
   return (
     <div>     
@@ -103,19 +163,19 @@ const App = () => {
         <button onClick={handleSubmit}>Predict</button>
           <div className='LR-Model'>
             <h1>Logistic Regression</h1>
-            <p>Kết quả dự đoán: {predictionResult !== null && (           
-                <span>{predictionResult === 0 ? 'Khả năng thấp bị bệnh thận' : 'Khả năng cao bị bệnh thận'}</span>
+            <p>Kết quả dự đoán: {predictionResultLR !== null && (           
+                <span>{predictionResultLR === 0 ? 'Khả năng thấp bị bệnh thận' : 'Khả năng cao bị bệnh thận'}</span>
             )}</p>         
-            <p>Tỉ lệ không mắc bệnh: {negativePercentage}%</p>
-            <p>Tỉ lệ mắc bệnh: {positivePercentage}%</p>
+            <p>Tỉ lệ không mắc bệnh: {negativePercentageLR}%</p>
+            <p>Tỉ lệ mắc bệnh: {positivePercentageLR}%</p>
           </div>
-          <div className='LR-Model'>
-            <h1>Logistic Regression</h1>
-            <p>Kết quả dự đoán: {predictionResult !== null && (           
-                <span>{predictionResult === 0 ? 'Khả năng thấp bị bệnh thận' : 'Khả năng cao bị bệnh thận'}</span>
+          <div className='BNB-Model'>
+            <h1>Bernoulli Naives Bayes</h1>
+            <p>Kết quả dự đoán: {predictionResultBNB !== null && (           
+                <span>{predictionResultBNB === 0 ? 'Khả năng thấp bị bệnh thận' : 'Khả năng cao bị bệnh thận'}</span>
             )}</p>         
-            <p>Tỉ lệ không mắc bệnh: {negativePercentage}%</p>
-            <p>Tỉ lệ mắc bệnh: {positivePercentage}%</p>
+            <p>Tỉ lệ không mắc bệnh: {negativePercentageBNB}%</p>
+            <p>Tỉ lệ mắc bệnh: {positivePercentageBNB}%</p>
           </div>
         </div>
         <div className='Data-Container'>
@@ -130,10 +190,21 @@ const App = () => {
               values={[inputData.age]}
               onChange={(values) => handleInputChange('age', values[0])}
               renderTrack={({ props, children }) => (
-                <div {...props} className="track">{children}</div>
+                <div {...props} style={{
+                  ...props.style,
+                  background: getTrackBackground({
+                    values: [inputData.age],
+                    colors: ["#007bff", "#ccc"],
+                    min: 1,
+                    max: 100,
+                  }),
+                }} className="track">
+                  {children}
+                </div>
               )}
               renderThumb={({ props }) => (
-                <div {...props} className="thumb" />
+                <div {...props} 
+                 className="thumb" />
               )}
             />
             <div className="range-info">
@@ -216,7 +287,15 @@ const App = () => {
               values={[inputData.bgr]}
               onChange={(values) => handleInputChange('bgr', values[0])}
               renderTrack={({ props, children }) => (
-                <div {...props} className="track">{children}</div>
+                <div {...props} style={{
+                  ...props.style,
+                  background: getTrackBackground({
+                    values: [inputData.bgr],
+                    colors: ["#007bff", "#ccc"],
+                    min: 1,
+                    max: 500,
+                  }),
+                }} className="track">{children}</div>
               )}
               renderThumb={({ props }) => (
                 <div {...props} className="thumb" />
@@ -233,7 +312,15 @@ const App = () => {
               values={[inputData.bu]}
               onChange={(values) => handleInputChange('bu', values[0])}
               renderTrack={({ props, children }) => (
-                <div {...props} className="track">{children}</div>
+                <div {...props} style={{
+                  ...props.style,
+                  background: getTrackBackground({
+                    values: [inputData.bu],
+                    colors: ["#007bff", "#ccc"],
+                    min: 1,
+                    max: 200,
+                  }),
+                }} className="track">{children}</div>
               )}
               renderThumb={({ props }) => (
                 <div {...props} className="thumb" />
@@ -250,7 +337,15 @@ const App = () => {
               values={[inputData.sc]}
               onChange={(values) => handleInputChange('sc', values[0])}
               renderTrack={({ props, children }) => (
-                <div {...props} className="track">{children}</div>
+                <div {...props} style={{
+                  ...props.style,
+                  background: getTrackBackground({
+                    values: [inputData.sc],
+                    colors: ["#007bff", "#ccc"],
+                    min: 1,
+                    max: 15,
+                  }),
+                }} className="track">{children}</div>
               )}
               renderThumb={({ props }) => (
                 <div {...props} className="thumb" />
@@ -267,7 +362,15 @@ const App = () => {
               values={[inputData.sod]}
               onChange={(values) => handleInputChange('sod', values[0])}
               renderTrack={({ props, children }) => (
-                <div {...props} className="track">{children}</div>
+                <div {...props} style={{
+                  ...props.style,
+                  background: getTrackBackground({
+                    values: [inputData.sod],
+                    colors: ["#007bff", "#ccc"],
+                    min: 1,
+                    max: 200,
+                  }),
+                }} className="track">{children}</div>
               )}
               renderThumb={({ props }) => (
                 <div {...props} className="thumb" />
@@ -284,7 +387,15 @@ const App = () => {
               values={[inputData.pot]}
               onChange={(values) => handleInputChange('pot', values[0])}
               renderTrack={({ props, children }) => (
-                <div {...props} className="track">{children}</div>
+                <div {...props} style={{
+                  ...props.style,
+                  background: getTrackBackground({
+                    values: [inputData.pot],
+                    colors: ["#007bff", "#ccc"],
+                    min: 1,
+                    max: 10,
+                  }),
+                }} className="track">{children}</div>
               )}
               renderThumb={({ props }) => (
                 <div {...props} className="thumb" />
@@ -301,7 +412,15 @@ const App = () => {
               values={[inputData.hemo]}
               onChange={(values) => handleInputChange('hemo', values[0])}
               renderTrack={({ props, children }) => (
-                <div {...props} className="track">{children}</div>
+                <div {...props} style={{
+                  ...props.style,
+                  background: getTrackBackground({
+                    values: [inputData.hemo],
+                    colors: ["#007bff", "#ccc"],
+                    min: 1,
+                    max: 20,
+                  }),
+                }} className="track">{children}</div>
               )}
               renderThumb={({ props }) => (
                 <div {...props} className="thumb" />
@@ -318,7 +437,15 @@ const App = () => {
               values={[inputData.pcv]}
               onChange={(values) => handleInputChange('pcv', values[0])}
               renderTrack={({ props, children }) => (
-                <div {...props} className="track">{children}</div>
+                <div {...props} style={{
+                  ...props.style,
+                  background: getTrackBackground({
+                    values: [inputData.pcv],
+                    colors: ["#007bff", "#ccc"],
+                    min: 1,
+                    max: 54,
+                  }),
+                }} className="track">{children}</div>
               )}
               renderThumb={({ props }) => (
                 <div {...props} className="thumb" />
@@ -335,7 +462,15 @@ const App = () => {
               values={[inputData.wc]}
               onChange={(values) => handleInputChange('wc', values[0])}
               renderTrack={({ props, children }) => (
-                <div {...props} className="track">{children}</div>
+                <div {...props} style={{
+                  ...props.style,
+                  background: getTrackBackground({
+                    values: [inputData.wc],
+                    colors: ["#007bff", "#ccc"],
+                    min: 1,
+                    max: 26400,
+                  }),
+                }} className="track">{children}</div>
               )}
               renderThumb={({ props }) => (
                 <div {...props} className="thumb" />
@@ -352,7 +487,15 @@ const App = () => {
               values={[inputData.rc]}
               onChange={(values) => handleInputChange('rc', values[0])}
               renderTrack={({ props, children }) => (
-                <div {...props} className="track">{children}</div>
+                <div {...props} style={{
+                  ...props.style,
+                  background: getTrackBackground({
+                    values: [inputData.rc],
+                    colors: ["#007bff", "#ccc"],
+                    min: 1,
+                    max: 18,
+                  }),
+                }} className="track">{children}</div>
               )}
               renderThumb={({ props }) => (
                 <div {...props} className="thumb" />
