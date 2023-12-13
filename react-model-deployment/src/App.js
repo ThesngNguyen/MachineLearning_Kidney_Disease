@@ -40,6 +40,8 @@ const App = () => {
   const [positivePercentageBNB, setPositivePercentageBNB] = useState(0);
   const [negativePercentageBNB, setNegativePercentageBNB] = useState(0);
 
+  //
+
   const handleInputChange = (fieldName, value) => {
     setInputData({ ...inputData, [fieldName]: value });
   };
@@ -86,6 +88,9 @@ const App = () => {
 
   const handleSubmit = async () => {
     try {
+
+      setIsProcessing(true);
+
       // Gửi yêu cầu POST đến /predict
       const response = await fetch('http://localhost:5000/predict', {
         method: 'POST',
@@ -142,7 +147,12 @@ const App = () => {
     } catch (error) {
       console.error('Lỗi khi gửi yêu cầu:', error);
       console.log(inputData)
-    } 
+    } finally {
+      //End
+      setTimeout(() => {
+        setIsProcessing(false);
+      }, 3000);  
+    }
   };
 
   useEffect(() => {
@@ -155,9 +165,19 @@ const App = () => {
     console.log("Negative Percentage: ", negativePercentageLR);
   }, [positivePercentageLR, negativePercentageLR]);
 
+  //Loading Prediction
+  const [isProcessing, setIsProcessing] = useState(false);
+
   return (
-    <div>     
-      <div className='Box-Container'>
+    <div>    
+      {isProcessing && (
+        <div className="overlay">
+          <div className='prediction-popup'>
+            <img className="scaled-gif" src="https://media2.giphy.com/media/uNFCFKlTmovbgzHkeT/giphy.gif?cid=ecf05e4769r15uwvt95r46az4ealvl79zwdzcil6ra0wno5t&ep=v1_gifs_search&rid=giphy.gif&ct=g" alt="Loading..." />
+          </div>
+        </div>
+      )} 
+      <div className='Box-Container' >    
         <div className='Info-Container'>
         <h2>Kidney Disease Diagnosis</h2>
         <button onClick={handleSubmit}>Predict</button>
