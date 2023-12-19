@@ -14,7 +14,7 @@ body {
 h2 {
     color: #333;
     text-align: center;
-    position: sticky;
+    /* position: sticky; */
     top: 0;
 }
 
@@ -50,6 +50,12 @@ p {
     margin-top: 15px;
     font-weight: bold;
     color: #333;
+}
+
+span {
+    border-radius: 10px;
+    background-color: white;
+    padding: 5px;
 }
 
 .overlay {
@@ -115,9 +121,10 @@ p {
 .Info-Container {
     width: 40%;
     height: 100%;
-    position: sticky;
+    position: relative;
     padding-left: 20px;
     top: 0;
+    overflow: auto;
 }
 
 .Data-Container {
@@ -136,20 +143,13 @@ h1 {
     text-align: center;
 }
 
-.LR-Model {
-    padding: 10px;
-    width: auto;
-    height: auto;
-    margin-top: 10px;
-    border-radius: 20px;
-    background-color: #ccc;
-}
-
+.LR-Model,
+.SVM-Model,
 .BNB-Model {
     padding: 10px;
     width: auto;
     height: auto;
     margin-top: 10px;
     border-radius: 20px;
-    background-color: rgb(242, 242, 242);
+    background-color: #ccc;
 }
