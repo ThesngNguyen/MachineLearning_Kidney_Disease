@@ -35,12 +35,21 @@ const App = () => {
   const [positivePercentageLR, setPositivePercentageLR] = useState(0);
   const [negativePercentageLR, setNegativePercentageLR] = useState(0);
 
-  //Bernoulli Regression
+  //Bernoulli Naive Bayes
   const [predictionResultBNB, setPredictionResultBNB] = useState(null);
   const [positivePercentageBNB, setPositivePercentageBNB] = useState(0);
   const [negativePercentageBNB, setNegativePercentageBNB] = useState(0);
 
-  //
+  //Support Vector Machine
+  const [predictionResultSVM, setPredictionResultSVM] = useState(null);
+  const [positivePercentageSVM, setPositivePercentageSVM] = useState(0);
+  const [negativePercentageSVM, setNegativePercentageSVM] = useState(0);
+
+  //Decision Tree
+  const [predictionResultDT, setPredictionResultDT] = useState(null);
+  const [positivePercentageDT, setPositivePercentageDT] = useState(0);
+  const [negativePercentageDT, setNegativePercentageDT] = useState(0);
+
 
   const handleInputChange = (fieldName, value) => {
     setInputData({ ...inputData, [fieldName]: value });
@@ -70,14 +79,54 @@ const App = () => {
   const getPredictionInfoBNB = async () => {
     try {
       // Gửi yêu cầu GET để lấy thông tin chi tiết về dự đoán
-      const responseBNB = await fetch('http://localhost:5000/prediction/bnb');
+      const responseBNB = await fetch('http://localhost:5000/predict/bnb');
       const dataBNB = await responseBNB.json();
-  
       // Kiểm tra xem có giá trị percentage hay không
       if ('negative_percentage_BNB' in dataBNB && 'positive_percentage_BNB' in dataBNB) {
         // Cập nhật state
         setNegativePercentageBNB(dataBNB.negative_percentage_BNB);
         setPositivePercentageBNB(dataBNB.positive_percentage_BNB);
+        console.log(setNegativePercentageBNB, setPositivePercentageBNB)
+      } else {
+        console.error('Không có giá trị percentage trong phản hồi.');
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy thông tin dự đoán:', error);
+    }
+  };
+
+  //Get SVM
+  const getPredictionInfoSVM = async () => {
+    try {
+      // Gửi yêu cầu GET để lấy thông tin chi tiết về dự đoán
+      const responseSVM = await fetch('http://localhost:5000/predict/svm');
+      const dataSVM = await responseSVM.json();
+      // Kiểm tra xem có giá trị percentage hay không
+      if ('negative_percentage_SVM' in dataSVM && 'positive_percentage_SVM' in dataSVM) {
+        // Cập nhật state
+        setNegativePercentageSVM(dataSVM.negative_percentage_SVM);
+        setPositivePercentageSVM(dataSVM.positive_percentage_SVM);
+        console.log(setNegativePercentageSVM, setPositivePercentageSVM)
+      } else {
+        console.error('Không có giá trị percentage trong phản hồi.');
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy thông tin dự đoán:', error);
+    }
+  };
+
+  //Get KNN
+  const getPredictionInfoDT = async () => {
+    try {
+      // Gửi yêu cầu GET để lấy thông tin chi tiết về dự đoán
+      const responseDT = await fetch('http://localhost:5000/predict/dt');
+      const dataDT = await responseDT.json();
+      // Kiểm tra xem có giá trị percentage hay không
+      if ('negative_percentage_DT' in dataDT && 'positive_percentage_DT' in dataDT) {
+        // Cập nhật state
+        setNegativePercentageDT(dataDT.negative_percentage_DT);
+        setPositivePercentageDT(dataDT.positive_percentage_DT);
+        console.log(setNegativePercentageDT, setPositivePercentageDT)
       } else {
         console.error('Không có giá trị percentage trong phản hồi.');
       }
@@ -100,7 +149,7 @@ const App = () => {
         body: JSON.stringify(inputData),
       });
 
-      // Gửi yêu cầu POST đến /predict
+      // Gửi yêu cầu POST đến /predict bnb
       const responseBNB = await fetch('http://localhost:5000/prediction/bnb', {
         method: 'POST',
         headers: {
@@ -108,10 +157,30 @@ const App = () => {
         },
         body: JSON.stringify(inputData),
       });
+
+      // Gửi yêu cầu POST đến /predict SVM
+      const responseSVM = await fetch('http://localhost:5000/prediction/svm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(inputData),
+      });
+
+      // Gửi yêu cầu POST đến /predict DT
+      const responseDT = await fetch('http://localhost:5000/prediction/dt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(inputData),
+      })
   
       // Xử lý phản hồi từ máy chủ
       const data = await response.json();
       const dataBNB = await responseBNB.json();
+      const dataSVM = await responseSVM.json();
+      const dataDT = await responseDT.json();
 
       // Hiển thị kết quả dự đoán BNB
       if ('result' in dataBNB) {
@@ -124,6 +193,20 @@ const App = () => {
         }
       } else if ('error' in dataBNB) {
         console.error('Lỗi khi dự đoán:', dataBNB.error);
+        console.log(inputData)
+      }
+
+      // Hiển thị kết quả dự đoán KNN
+      if ('result' in dataSVM) {
+        setPredictionResultSVM(dataSVM.result); 
+
+        if (dataSVM.result === 0) {
+          console.log('Khách hàng không bị bệnh thận.');
+        } else {
+          console.log('Khách hàng bị bệnh thận.');
+        }
+      } else if ('error' in dataSVM) {
+        console.error('Lỗi khi dự đoán:', dataSVM.error);
         console.log(inputData)
       }
   
@@ -141,8 +224,24 @@ const App = () => {
         console.log(inputData)
       }
 
+      // Hiển thị kết quả dự đoán DT
+      if ('result' in dataDT) {
+        setPredictionResultDT(dataDT.result);  
+
+        if (data.result === 0) {
+          console.log('Khách hàng không bị bệnh thận.');
+        } else {
+          console.log('Khách hàng bị bệnh thận.');
+        }
+      } else if ('error' in dataDT) {
+        console.error('Lỗi khi dự đoán:', data.error);
+        console.log(inputData)
+      }
+
       await getPredictionInfo();
       await getPredictionInfoBNB();
+      await getPredictionInfoSVM();
+      await getPredictionInfoDT();
 
     } catch (error) {
       console.error('Lỗi khi gửi yêu cầu:', error);
@@ -151,19 +250,20 @@ const App = () => {
       //End
       setTimeout(() => {
         setIsProcessing(false);
-      }, 3000);  
+      }, 2000);  
     }
   };
 
   useEffect(() => {
     console.log("Positive Percentage: ", positivePercentageBNB);
     console.log("Negative Percentage: ", negativePercentageBNB);
-  }, [positivePercentageBNB, negativePercentageBNB]);
-
-  useEffect(() => {
     console.log("Positive Percentage: ", positivePercentageLR);
     console.log("Negative Percentage: ", negativePercentageLR);
-  }, [positivePercentageLR, negativePercentageLR]);
+    console.log("Positive Percentage: ", positivePercentageSVM);
+    console.log("Negative Percentage: ", negativePercentageSVM);
+    console.log("Positive Percentage: ", positivePercentageDT);
+    console.log("Negative Percentage: ", negativePercentageDT);
+  }, [positivePercentageBNB, negativePercentageBNB, positivePercentageLR, negativePercentageLR, positivePercentageSVM , negativePercentageSVM, positivePercentageDT, negativePercentageDT]);
 
   //Loading Prediction
   const [isProcessing, setIsProcessing] = useState(false);
@@ -181,22 +281,51 @@ const App = () => {
         <div className='Info-Container'>
         <h2>Kidney Disease Diagnosis</h2>
         <button onClick={handleSubmit}>Predict</button>
+
           <div className='LR-Model'>
             <h1>Logistic Regression</h1>
             <p>Kết quả dự đoán: {predictionResultLR !== null && (           
-                <span>{predictionResultLR === 0 ? 'Khả năng thấp bị bệnh thận' : 'Khả năng cao bị bệnh thận'}</span>
+              <span style={{ color: predictionResultLR === 0 ? 'green' : 'red' }}>
+                {predictionResultLR === 0 ? 'Khả năng thấp bị bệnh thận' : 'Khả năng cao bị bệnh thận'}
+              </span>
             )}</p>         
-            <p>Tỉ lệ không mắc bệnh: {negativePercentageLR}%</p>
-            <p>Tỉ lệ mắc bệnh: {positivePercentageLR}%</p>
+            <p>Tỉ lệ không mắc bệnh: <span style={{color: 'green', fontWeight: 'normal'}}>{negativePercentageLR} %</span></p>
+            <p>Tỉ lệ mắc bệnh: <span style={{color: 'red', fontWeight: 'normal'}}>{positivePercentageLR} %</span></p>
           </div>
+
           <div className='BNB-Model'>
             <h1>Bernoulli Naives Bayes</h1>
             <p>Kết quả dự đoán: {predictionResultBNB !== null && (           
-                <span>{predictionResultBNB === 0 ? 'Khả năng thấp bị bệnh thận' : 'Khả năng cao bị bệnh thận'}</span>
+              <span style={{ color: predictionResultBNB === 0 ? 'green' : 'red' }}>
+                {predictionResultBNB === 0 ? 'Khả năng thấp bị bệnh thận' : 'Khả năng cao bị bệnh thận'}
+              </span>
             )}</p>         
-            <p>Tỉ lệ không mắc bệnh: {negativePercentageBNB}%</p>
-            <p>Tỉ lệ mắc bệnh: {positivePercentageBNB}%</p>
+            <p>Tỉ lệ không mắc bệnh: <span style={{color: 'green', fontWeight: 'normal'}}>{negativePercentageBNB} %</span></p>
+            <p>Tỉ lệ mắc bệnh: <span style={{color: 'red', fontWeight: 'normal'}}>{positivePercentageBNB} %</span></p>
           </div>
+
+          <div className='SVM-Model'>
+            <h1>Support Vector Machine</h1>
+            <p>Kết quả dự đoán: {predictionResultSVM !== null && (           
+              <span style={{ color: predictionResultSVM === 0 ? 'green' : 'red' }}>
+                {predictionResultSVM === 0 ? 'Khả năng thấp bị bệnh thận' : 'Khả năng cao bị bệnh thận'}
+              </span>
+            )}</p>         
+            <p>Tỉ lệ không mắc bệnh: <span style={{color: 'green', fontWeight: 'normal'}}>{negativePercentageSVM} %</span></p>
+            <p>Tỉ lệ mắc bệnh: <span style={{color: 'red', fontWeight: 'normal'}}>{positivePercentageSVM} %</span></p>
+          </div>
+
+          <div className='SVM-Model'>
+            <h1>Decision Tree</h1>
+            <p>Kết quả dự đoán: {predictionResultDT !== null && (           
+              <span style={{ color: predictionResultDT === 0 ? 'green' : 'red' }}>
+                {predictionResultDT === 0 ? 'Khả năng thấp bị bệnh thận' : 'Khả năng cao bị bệnh thận'}
+              </span>
+            )}</p>         
+            <p>Tỉ lệ không mắc bệnh: <span style={{color: 'green', fontWeight: 'normal'}}>{negativePercentageDT} %</span></p>
+            <p>Tỉ lệ mắc bệnh: <span style={{color: 'red', fontWeight: 'normal'}}>{positivePercentageDT} %</span></p>
+          </div>
+
         </div>
         <div className='Data-Container'>
           <label>

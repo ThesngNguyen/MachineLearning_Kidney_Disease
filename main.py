@@ -1,13 +1,17 @@
 from flask import Flask, request, jsonify
 import pickle
+import joblib
 import numpy as np
 from flask_cors import CORS
-# import LR_Model as predict
 
 app = Flask(__name__)   
 CORS(app)
+
+# Import tập train
 modelLR = pickle.load(open('Data/LR_Model.h5', 'rb'))
 modelBNB = pickle.load(open('Data/BernoulliNB.h5', 'rb'))
+modelSVM = pickle.load(open('Data/SVM_Model.h5', 'rb'))
+modelDT = pickle.load(open('Data/DT_Model.h5', 'rb'))
 
 def preprocess_data(age, bp, sg, al, su, rbc, pc, pcc, ba, bgr, bu, sc, sod, pot, hemo, pcv, wc, rc, htn, dm, cad, appet, pe, ane):
     input_data = {
@@ -49,6 +53,9 @@ def preprocess_data(age, bp, sg, al, su, rbc, pc, pcc, ba, bgr, bu, sc, sod, pot
     
     return new_data.astype(np.float64)
 
+
+### Logistic Regression
+
 # Biến để lưu trữ thông tin dự đoán LR
 prediction_info_LR = {}
 
@@ -68,8 +75,8 @@ def make_prediction():
         probabilities = modelLR.predict_proba(input_data)
         
         # Calculate the percentage of positive and negative predictions
-        negative_percentage_LR = round(probabilities[0][0] * 100, 20)
-        positive_percentage_LR = round(probabilities[0][1] * 100, 20)
+        negative_percentage_LR = round(probabilities[0][0] * 100, 5)
+        positive_percentage_LR = round(probabilities[0][1] * 100, 5)
         
         # Store prediction info
         prediction_info_LR['negative_percentage_LR'] = negative_percentage_LR
@@ -94,7 +101,6 @@ def make_prediction():
     except Exception as e:
         return jsonify({'error': str(e)})
     
-# # GET method for a simple message
 # Hàm để lấy thông tin dự đoán
 @app.route('/prediction', methods=['GET'])
 def get_prediction_info():
@@ -112,7 +118,7 @@ def get_prediction_info():
 prediction_info_BNB = {}
 
 # Route cho phương thức GET của BNB
-@app.route('/prediction/bnb', methods=['GET'])
+@app.route('/predict/bnb', methods=['GET'])
 def get_bnb_prediction_info():
     try:
         # Trả về thông tin dự đoán từ biến prediction_info
@@ -137,8 +143,8 @@ def make_bnb_prediction():
         probabilities = modelBNB.predict_proba(input_data)
         
         # Calculate the percentage of positive and negative predictions
-        negative_percentage_BNB = round(probabilities[0][0] * 100, 20)
-        positive_percentage_BNB = round(probabilities[0][1] * 100, 20)
+        negative_percentage_BNB = round(probabilities[0][0] * 100, 5)
+        positive_percentage_BNB = round(probabilities[0][1] * 100, 5)
         
         # Store prediction info
         prediction_info_BNB['negative_percentage_BNB'] = negative_percentage_BNB
@@ -157,6 +163,115 @@ def make_bnb_prediction():
         })
     except Exception as e:
         return jsonify({'error': str(e)})
+    
+    
+###Support Vector Machine
+
+
+# Biến để lưu trữ thông tin dự đoán SVM
+prediction_info_SVM = {}
+
+# Route cho phương thức GET của SVM
+@app.route('/predict/svm', methods=['GET'])
+def get_svm_prediction_info():
+    try:
+        # Trả về thông tin dự đoán từ biến prediction_info
+        return jsonify(prediction_info_SVM)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+# Route cho phương thức POST của BNB
+@app.route('/prediction/svm', methods=['POST'])
+def make_svm_prediction():
+    try:
+        # Nhận dữ liệu JSON từ yêu cầu
+        data = request.get_json(force=True)
+        
+        # Preprocess the input data
+        input_data = preprocess_data(**data)
+
+        # Tiến hành xử lý và dự đoán BNB ở đây (giả sử)
+        resultSVM = modelSVM.predict(input_data)  # Giả sử kết quả là 0
+        
+        # Get the prediction probabilities
+        probabilities = modelSVM.predict_proba(input_data)
+        
+        # Calculate the percentage of positive and negative predictions
+        negative_percentage_SVM = round(probabilities[0][0] * 100, 5)
+        positive_percentage_SVM = round(probabilities[0][1] * 100, 5)
+        
+        # Store prediction info
+        prediction_info_SVM['negative_percentage_SVM'] = negative_percentage_SVM
+        prediction_info_SVM['positive_percentage_SVM'] = positive_percentage_SVM
+
+        # Display the percentages (you can log or print this as needed)
+        print("Tỉ lệ không mắc bệnh:", negative_percentage_SVM, "%")
+        print("Tỉ lệ mắc bệnh:", positive_percentage_SVM, "%")
+
+        # Trả về kết quả dưới dạng JSON
+        return jsonify({
+            'result': resultSVM.item(),
+            'negative_percentage_BNB': negative_percentage_SVM,
+            'positive_percentage_BNB': positive_percentage_SVM
+            
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+
+###Decision Tree
+
+
+# Biến để lưu trữ thông tin dự đoán SVM
+prediction_info_DT = {}
+
+# Route cho phương thức GET của SVM
+@app.route('/predict/dt', methods=['GET'])
+def get_dt_prediction_info():
+    try:
+        # Trả về thông tin dự đoán từ biến prediction_info
+        return jsonify(prediction_info_DT)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+# Route cho phương thức POST của BNB
+@app.route('/prediction/dt', methods=['POST'])
+def make_dt_prediction():
+    try:
+        # Nhận dữ liệu JSON từ yêu cầu
+        data = request.get_json(force=True)
+        
+        # Preprocess the input data
+        input_data = preprocess_data(**data)
+
+        # Tiến hành xử lý và dự đoán BNB ở đây (giả sử)
+        resultDT = modelDT.predict(input_data)  # Giả sử kết quả là 0
+        
+        # Get the prediction probabilities
+        probabilities = modelDT.predict_proba(input_data)
+        
+        # Calculate the percentage of positive and negative predictions
+        negative_percentage_DT = round(probabilities[0][0] * 100, 5)
+        positive_percentage_DT = round(probabilities[0][1] * 100, 5)
+        
+        # Store prediction info
+        prediction_info_DT['negative_percentage_DT'] = negative_percentage_DT
+        prediction_info_DT['positive_percentage_DT'] = positive_percentage_DT
+
+        # Display the percentages (you can log or print this as needed)
+        print("Tỉ lệ không mắc bệnh:", negative_percentage_DT, "%")
+        print("Tỉ lệ mắc bệnh:", positive_percentage_DT, "%")
+
+        # Trả về kết quả dưới dạng JSON
+        return jsonify({
+            'result': resultDT.item(),
+            'negative_percentage_BNB': negative_percentage_DT,
+            'positive_percentage_BNB': positive_percentage_DT
+            
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
